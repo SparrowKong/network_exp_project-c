@@ -12,18 +12,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```
 network_exp_project-c/
 ├── src/                              # 源代码目录
-│   └── sliding_window_protocol/      # 滑动窗口协议实验
+│   ├── sliding_window_protocol/      # 滑动窗口协议实验
+│   │   ├── core/                     # 核心实现代码
+│   │   │   ├── sliding_window.h      # 协议头文件
+│   │   │   └── sliding_window.c      # 协议实现
+│   │   ├── frontend/                 # 用户交互界面
+│   │   │   └── interface.c           # 交互界面实现
+│   │   └── test/                     # 测试用例
+│   │       └── test_sliding_window.c # 测试程序
+│   └── udp_chat_system/              # UDP聊天系统实验
 │       ├── core/                     # 核心实现代码
-│       │   ├── sliding_window.h      # 协议头文件
-│       │   └── sliding_window.c      # 协议实现
+│       │   ├── udp_chat.h            # 系统头文件
+│       │   └── udp_chat.c            # 系统实现
 │       ├── frontend/                 # 用户交互界面
 │       │   └── interface.c           # 交互界面实现
 │       └── test/                     # 测试用例
-│           └── test_sliding_window.c # 测试程序
+│           └── test_udp_chat.c       # 测试程序
 ├── build/                            # 编译输出目录（按实验分离）
-│   └── sliding_window_protocol/      # 滑动窗口协议编译文件
+│   ├── sliding_window_protocol/      # 滑动窗口协议编译文件
+│   └── udp_chat_system/              # UDP聊天系统编译文件
 ├── bin/                              # 可执行文件目录（按实验分离）
-│   └── sliding_window_protocol/      # 滑动窗口协议可执行文件
+│   ├── sliding_window_protocol/      # 滑动窗口协议可执行文件
+│   └── udp_chat_system/              # UDP聊天系统可执行文件
 ├── Makefile                          # 构建配置文件
 ├── CLAUDE.md                         # AI开发助手配置
 ├── README.md                         # 项目说明文档
@@ -49,6 +59,25 @@ network_exp_project-c/
 - `frontend/interface.c` - 用户交互界面
 - `test/test_sliding_window.c` - 完整测试套件
 
+### 2. UDP聊天系统 - udp_chat_system
+
+**位置**: `src/udp_chat_system/`
+
+**功能**: 基于UDP协议的C/S架构聊天系统，包含：
+- 完整的UDP socket通信实现
+- 支持多客户端同时连接（最多10个）
+- 消息广播和群聊功能
+- 消息完整性校验（校验和机制）
+- 用户管理和在线状态跟踪
+- 详细的统计信息和日志记录
+- 交互式服务器和客户端界面
+
+**核心文件**:
+- `core/udp_chat.h` - 系统数据结构和函数声明
+- `core/udp_chat.c` - UDP通信和聊天功能实现
+- `frontend/interface.c` - 统一用户交互界面
+- `test/test_udp_chat.c` - 完整测试套件（42个测试用例）
+
 ## Commands
 
 ### 构建项目
@@ -69,10 +98,14 @@ make test               # 运行所有实验的测试
 # 特定实验命令
 make sliding_window_protocol-demo   # 运行滑动窗口协议演示
 make sliding_window_protocol-test   # 运行滑动窗口协议测试
+make udp_chat_system-demo           # 运行UDP聊天系统演示
+make udp_chat_system-test           # 运行UDP聊天系统测试
 
 # 直接运行
 ./bin/sliding_window_protocol/demo  # 直接运行演示程序
 ./bin/sliding_window_protocol/test  # 直接运行测试程序
+./bin/udp_chat_system/demo          # 直接运行UDP聊天系统
+./bin/udp_chat_system/test          # 直接运行UDP聊天系统测试
 ```
 
 ### 开发工具
@@ -129,6 +162,15 @@ make [实验名]-clean     # 清理特定实验编译文件
 - 使用简单校验和进行错误检测
 - 实现可配置的网络环境参数
 - 提供详细的统计信息和性能分析
+
+### UDP聊天系统实现要点
+- 基于UDP socket实现C/S架构通信
+- 使用select()实现非阻塞I/O和多客户端管理
+- 自定义消息协议支持多种消息类型（加入、离开、聊天、服务器信息等）
+- 消息完整性校验确保数据传输可靠性
+- 服务器端维护客户端列表实现消息广播
+- 客户端和服务器分离的交互式界面设计
+- 完整的错误处理和异常情况处理机制
 
 ### 扩展建议
 - 可以基于现有框架添加更多协议实验
