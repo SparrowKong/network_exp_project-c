@@ -6,16 +6,27 @@
 
 ```
 network_exp_project-c/
-├── src/                    # 源代码目录
-│   └── sliding_window_protocol/  # 滑动窗口协议实验
-│       ├── core/           # 核心实现代码
-│       ├── frontend/       # 用户交互界面
-│       └── test/           # 测试用例
-├── build/                  # 编译输出目录（自动创建）
-├── bin/                    # 可执行文件目录（自动创建）
-├── Makefile               # 构建配置文件
-├── CLAUDE.md              # AI 开发助手配置
-└── README.md              # 项目说明文档
+├── src/                              # 源代码目录
+│   └── sliding_window_protocol/      # 滑动窗口协议实验
+│       ├── core/                     # 核心实现代码
+│       │   ├── sliding_window.h      # 协议头文件
+│       │   └── sliding_window.c      # 协议实现
+│       ├── frontend/                 # 用户交互界面
+│       │   └── interface.c           # 交互界面实现
+│       └── test/                     # 测试用例
+│           └── test_sliding_window.c # 测试程序
+├── build/                            # 编译输出目录（按实验分离）
+│   └── sliding_window_protocol/      # 滑动窗口协议编译文件
+│       ├── core.o                    # 核心模块对象文件
+│       ├── frontend.o                # 界面模块对象文件
+│       └── test.o                    # 测试模块对象文件
+├── bin/                              # 可执行文件目录（按实验分离）
+│   └── sliding_window_protocol/      # 滑动窗口协议可执行文件
+│       ├── demo                      # 演示程序
+│       └── test                      # 测试程序
+├── Makefile                          # 支持多实验的构建配置文件
+├── CLAUDE.md                         # AI 开发助手配置
+└── README.md                         # 项目说明文档
 ```
 
 ---
@@ -39,31 +50,34 @@ network_exp_project-c/
 
 ### 编译和运行
 
-#### 构建项目
+#### 通用构建命令
 ```bash
-make                # 构建所有程序
-make all            # 同上
+make                          # 构建所有实验
+make list                     # 列出所有可用实验
+make experiments              # 构建所有实验（同make）
+make test                     # 运行所有实验的测试
+make demo                     # 交互式选择并运行演示
+make clean                    # 清理所有编译文件
+make help                     # 显示详细帮助信息
 ```
 
-#### 运行演示程序
+#### 特定实验命令
 ```bash
-make demo           # 启动交互式演示程序
-# 或直接运行
-./bin/sliding_window_demo
+# 滑动窗口协议实验
+make sliding_window_protocol        # 构建该实验
+make sliding_window_protocol-demo   # 运行该实验演示程序
+make sliding_window_protocol-test   # 运行该实验测试
+make sliding_window_protocol-clean  # 清理该实验编译文件
+
+# 直接运行程序
+./bin/sliding_window_protocol/demo  # 直接运行演示程序
+./bin/sliding_window_protocol/test  # 直接运行测试程序
 ```
 
-#### 运行测试
+#### 系统安装（可选）
 ```bash
-make test           # 运行完整测试套件
-# 或直接运行
-./bin/test_sliding_window
-```
-
-#### 其他命令
-```bash
-make clean          # 清理编译文件
-make help           # 显示帮助信息
-make info           # 显示项目信息
+make install        # 安装到系统目录 /usr/local/bin/
+make uninstall      # 从系统目录卸载
 ```
 
 ### 实验内容

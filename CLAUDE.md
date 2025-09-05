@@ -20,8 +20,10 @@ network_exp_project-c/
 │       │   └── interface.c           # 交互界面实现
 │       └── test/                     # 测试用例
 │           └── test_sliding_window.c # 测试程序
-├── build/                            # 编译输出目录（自动创建）
-├── bin/                              # 可执行文件目录（自动创建）
+├── build/                            # 编译输出目录（按实验分离）
+│   └── sliding_window_protocol/      # 滑动窗口协议编译文件
+├── bin/                              # 可执行文件目录（按实验分离）
+│   └── sliding_window_protocol/      # 滑动窗口协议可执行文件
 ├── Makefile                          # 构建配置文件
 ├── CLAUDE.md                         # AI开发助手配置
 ├── README.md                         # 项目说明文档
@@ -51,27 +53,40 @@ network_exp_project-c/
 
 ### 构建项目
 ```bash
-make                    # 构建所有程序
-make all                # 同上
-make clean              # 清理编译文件
-make help               # 显示帮助信息
+make                    # 构建所有实验
+make list               # 列出所有可用实验
+make experiments        # 构建所有实验（同make）
+make clean              # 清理所有编译文件
+make help               # 显示详细帮助信息
 ```
 
 ### 运行程序
 ```bash
-make demo               # 运行滑动窗口协议演示程序
-make test               # 运行所有测试用例
-./bin/sliding_window_demo        # 直接运行演示程序
-./bin/test_sliding_window        # 直接运行测试程序
+# 通用命令
+make demo               # 交互式选择并运行演示
+make test               # 运行所有实验的测试
+
+# 特定实验命令
+make sliding_window_protocol-demo   # 运行滑动窗口协议演示
+make sliding_window_protocol-test   # 运行滑动窗口协议测试
+
+# 直接运行
+./bin/sliding_window_protocol/demo  # 直接运行演示程序
+./bin/sliding_window_protocol/test  # 直接运行测试程序
 ```
 
 ### 开发工具
 ```bash
-make debug              # 构建调试版本
-make release            # 构建发布版本
-make lint               # 代码风格检查（需要clang-format）
-make format             # 代码格式化
-make memcheck           # 内存检查（需要valgrind）
+make info               # 显示项目信息
+make debug              # 显示调试信息和目录结构检查
+make install            # 安装到系统目录
+make uninstall          # 从系统目录卸载
+
+# 特定实验管理
+make [实验名]           # 构建特定实验
+make [实验名]-demo      # 运行特定实验演示
+make [实验名]-test      # 运行特定实验测试  
+make [实验名]-clean     # 清理特定实验编译文件
 ```
 
 ## Development Guidelines
@@ -135,6 +150,7 @@ make memcheck           # 内存检查（需要valgrind）
 1. **实验独立性**: 每个实验单独放在src下的子目录中，子目录的名字能够清晰的反映实验的内容
 2. **三层架构**: 每个实验的核心实现代码放在/core下，交互界面代码放在/frontend下，测试用例放在/test下
 3. **文档更新**: 每生成一个实验，将文档内容放在README.md下，并清楚的分割每个实验
+4. 注意每个实验的makefile和编译后的目标路径，也要像src一样，做好不同实验的隔离
 
 ## Notes for Future Development
 - 保持代码的教学特性，注重可读性和注释质量
