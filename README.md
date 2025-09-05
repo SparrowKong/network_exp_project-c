@@ -7,22 +7,31 @@
 ```
 network_exp_project-c/
 ├── src/                              # 源代码目录
-│   └── sliding_window_protocol/      # 滑动窗口协议实验
+│   ├── sliding_window_protocol/      # 滑动窗口协议实验
+│   │   ├── core/                     # 核心实现代码
+│   │   │   ├── sliding_window.h      # 协议头文件
+│   │   │   └── sliding_window.c      # 协议实现
+│   │   ├── frontend/                 # 用户交互界面
+│   │   │   └── interface.c           # 交互界面实现
+│   │   └── test/                     # 测试用例
+│   │       └── test_sliding_window.c # 测试程序
+│   └── tcp_chat_system/              # TCP聊天系统实验
 │       ├── core/                     # 核心实现代码
-│       │   ├── sliding_window.h      # 协议头文件
-│       │   └── sliding_window.c      # 协议实现
+│       │   ├── tcp_chat.h            # TCP通信协议头文件
+│       │   └── tcp_chat.c            # TCP Socket通信实现
 │       ├── frontend/                 # 用户交互界面
-│       │   └── interface.c           # 交互界面实现
+│       │   └── interface.c           # 聊天界面实现
 │       └── test/                     # 测试用例
-│           └── test_sliding_window.c # 测试程序
+│           └── test_tcp_chat.c       # 完整测试套件
 ├── build/                            # 编译输出目录（按实验分离）
-│   └── sliding_window_protocol/      # 滑动窗口协议编译文件
-│       ├── core.o                    # 核心模块对象文件
-│       ├── frontend.o                # 界面模块对象文件
-│       └── test.o                    # 测试模块对象文件
+│   ├── sliding_window_protocol/      # 滑动窗口协议编译文件
+│   └── tcp_chat_system/              # TCP聊天系统编译文件
 ├── bin/                              # 可执行文件目录（按实验分离）
-│   └── sliding_window_protocol/      # 滑动窗口协议可执行文件
-│       ├── demo                      # 演示程序
+│   ├── sliding_window_protocol/      # 滑动窗口协议可执行文件
+│   │   ├── demo                      # 演示程序
+│   │   └── test                      # 测试程序
+│   └── tcp_chat_system/              # TCP聊天系统可执行文件
+│       ├── demo                      # 聊天演示程序
 │       └── test                      # 测试程序
 ├── Makefile                          # 支持多实验的构建配置文件
 ├── CLAUDE.md                         # AI 开发助手配置
@@ -69,9 +78,17 @@ make sliding_window_protocol-demo   # 运行该实验演示程序
 make sliding_window_protocol-test   # 运行该实验测试
 make sliding_window_protocol-clean  # 清理该实验编译文件
 
+# TCP聊天系统实验
+make tcp_chat_system                # 构建该实验
+make tcp_chat_system-demo           # 运行该实验演示程序
+make tcp_chat_system-test           # 运行该实验测试
+make tcp_chat_system-clean          # 清理该实验编译文件
+
 # 直接运行程序
-./bin/sliding_window_protocol/demo  # 直接运行演示程序
-./bin/sliding_window_protocol/test  # 直接运行测试程序
+./bin/sliding_window_protocol/demo  # 直接运行滑动窗口协议演示程序
+./bin/sliding_window_protocol/test  # 直接运行滑动窗口协议测试程序
+./bin/tcp_chat_system/demo          # 直接运行TCP聊天系统演示程序
+./bin/tcp_chat_system/test          # 直接运行TCP聊天系统测试程序
 ```
 
 #### 系统安装（可选）
@@ -142,6 +159,178 @@ make uninstall      # 从系统目录卸载
 - 添加选择重传（Selective Repeat）机制
 - 实现更复杂的错误检测算法
 - 添加流量控制机制
+
+---
+
+## 实验2: TCP聊天系统
+
+### 实验简介
+
+TCP聊天系统是一个基于TCP Socket原语的客户端/服务端架构聊天应用。本实验展示了如何使用标准的TCP Socket API实现可靠的网络通信，支持多客户端同时连接和实时消息交换。
+
+### 功能特性
+
+- ✅ **完整的C/S架构**: 包含独立的服务端和客户端程序
+- ✅ **TCP Socket通信**: 基于标准BSD Socket API实现
+- ✅ **多客户端支持**: 使用select多路复用支持并发连接（最多10个客户端）
+- ✅ **实时聊天功能**: 支持用户登录、群聊、用户列表查看
+- ✅ **消息广播**: 服务端向所有在线用户广播消息
+- ✅ **用户管理**: 用户登录验证、在线状态管理、优雅断开
+- ✅ **网络异常处理**: 连接断开检测、错误恢复、超时处理
+- ✅ **详细中文界面**: 友好的中文用户界面和提示信息
+- ✅ **统计信息**: 实时显示连接数、消息数等统计数据
+- ✅ **完善测试**: 包含10+个测试用例，覆盖各种场景
+
+### 编译和运行
+
+#### 构建项目
+```bash
+# 构建TCP聊天系统
+make tcp_chat_system
+make tcp_chat_system-demo   # 运行演示程序
+make tcp_chat_system-test   # 运行测试程序
+
+# 直接运行可执行文件
+./bin/tcp_chat_system/demo  # 启动主程序
+./bin/tcp_chat_system/test  # 运行测试套件
+```
+
+#### 使用说明
+
+**启动服务端**:
+1. 运行 `./bin/tcp_chat_system/demo`
+2. 选择 "1. 启动聊天服务器"
+3. 输入监听端口号（推荐8080）
+4. 服务器启动后会显示监听信息
+
+**启动客户端**:
+1. 在另一个终端运行 `./bin/tcp_chat_system/demo`
+2. 选择 "2. 连接聊天服务器（客户端）"  
+3. 输入服务器IP地址（本地测试使用127.0.0.1）
+4. 输入服务器端口号
+5. 输入用户名
+6. 成功连接后即可开始聊天
+
+**聊天功能**:
+- 输入文本消息并按回车发送
+- 输入 `quit` 退出聊天
+- 消息会实时广播给所有在线用户
+- 可以查看在线用户列表
+
+### 实验内容
+
+#### 1. 网络编程基础
+
+**TCP Socket编程流程**:
+
+*服务端*:
+1. `socket()` - 创建Socket
+2. `bind()` - 绑定地址和端口
+3. `listen()` - 开始监听
+4. `accept()` - 接受客户端连接
+5. `recv()/send()` - 收发数据
+6. `close()` - 关闭连接
+
+*客户端*:
+1. `socket()` - 创建Socket
+2. `connect()` - 连接服务器
+3. `send()/recv()` - 收发数据
+4. `close()` - 关闭连接
+
+#### 2. 核心功能模块
+
+**TCP通信核心** (`src/tcp_chat_system/core/`)
+- `tcp_chat.h` - 定义消息结构、状态管理、函数接口
+- `tcp_chat.c` - 实现TCP通信、多客户端管理、消息处理
+
+**用户界面** (`src/tcp_chat_system/frontend/`)
+- `interface.c` - 提供服务端和客户端的交互界面
+
+**测试套件** (`src/tcp_chat_system/test/`)
+- `test_tcp_chat.c` - 包含完整的自动化测试用例
+
+#### 3. 技术实现要点
+
+**多客户端并发处理**:
+- 使用 `select()` 系统调用实现I/O多路复用
+- 单线程处理多个客户端连接
+- 非阻塞I/O和事件驱动模型
+
+**消息协议设计**:
+```c
+typedef struct {
+    message_type_t type;        // 消息类型(登录/聊天/系统)
+    char username[32];          // 用户名
+    char content[1024];         // 消息内容  
+    time_t timestamp;           // 时间戳
+    int client_id;              // 客户端ID
+} chat_message_t;
+```
+
+**状态管理**:
+- 服务端维护客户端连接状态
+- 客户端管理连接状态和用户信息
+- 支持优雅的连接建立和断开
+
+**错误处理**:
+- 网络连接异常检测
+- 消息传输错误处理
+- 客户端异常断开处理
+- 服务端重启和恢复
+
+#### 4. 实验场景
+
+**基础聊天测试**:
+1. 启动一个服务端
+2. 连接2-3个客户端
+3. 测试消息发送和接收
+4. 测试用户加入/离开提示
+
+**并发连接测试**:
+1. 启动服务端（最大支持10个连接）
+2. 同时连接多个客户端
+3. 测试并发聊天性能
+4. 测试连接数限制
+
+**异常处理测试**:
+1. 测试网络断开场景
+2. 测试服务端重启场景  
+3. 测试客户端异常退出
+4. 测试端口占用情况
+
+**压力测试**:
+1. 高频消息发送
+2. 长时间连接稳定性
+3. 大量用户同时在线
+
+### 学习要点
+
+1. **Socket编程**: 掌握TCP Socket API的使用
+2. **网络协议**: 理解TCP的可靠性机制
+3. **并发处理**: 学习I/O多路复用技术
+4. **协议设计**: 了解应用层协议的设计原则
+5. **状态管理**: 理解网络程序的状态维护
+6. **错误处理**: 学习网络编程中的异常处理
+
+### 性能分析
+
+通过实验可以观察和分析：
+- TCP连接的建立和断开过程
+- 多路复用与多线程的性能对比
+- 网络延迟对聊天体验的影响
+- 并发连接数对服务端性能的影响
+- 消息广播的效率和可靠性
+
+### 实验扩展
+
+可以基于当前实现进行以下扩展：
+- 实现私聊功能（点对点消息）
+- 添加聊天室/群组功能
+- 实现用户认证和权限管理
+- 添加文件传输功能
+- 集成数据库存储聊天记录
+- 实现Web界面（HTTP/WebSocket）
+- 添加加密通信（TLS/SSL）
 
 ---
 
