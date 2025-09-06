@@ -1,0 +1,358 @@
+#include "../core/udp_chat.h"
+#include <signal.h>
+
+static server_state_t g_server;
+static chat_statistics_t g_stats = {0};
+static volatile bool g_running = true;
+
+/**
+ * 信号处理函数，用于优雅关闭服务器
+ * @param sig 信号编号
+ */
+void signal_handler(int sig) {
+    printf("\n收到信号 %d，正在关闭服务器...\n", sig);
+    g_running = false;
+    g_server.is_running = false;
+}
+
+/**
+ * 显示服务器菜单
+ */
+void show_server_menu() {
+    printf("\n========== UDP聊天服务器菜单 ==========\n");
+    printf("1. 启动服务器\n");
+    printf("2. 停止服务器\n");
+    printf("3. 显示在线用户\n");
+    printf("4. 显示统计信息\n");
+    printf("5. 服务器配置\n");
+    printf("6. 帮助信息\n");
+    printf("0. 退出程序\n");
+    printf("=====================================\n");
+    printf("请选择操作: ");
+}
+
+/**
+ * 显示在线用户列表
+ */
+void show_online_users() {
+    printf("\n========== 在线用户列表 ==========\n");
+    if (g_server.client_count == 0) {
+        printf("当前没有在线用户\n");
+    } else {
+        printf("当前在线用户数: %d\n", g_server.client_count);
+        printf("%-3s %-20s %-15s %-8s %-20s\n", 
+               "ID", "用户名", "IP地址", "端口", "最后活动时间");
+        printf("------------------------------------------------------------------\n");
+        
+        for (int i = 0; i < g_server.client_count; i++) {
+            if (g_server.clients[i].is_active) {
+                char ip_str[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, &g_server.clients[i].address.sin_addr, 
+                         ip_str, INET_ADDRSTRLEN);
+                
+                printf("%-3d %-20s %-15s %-8d %-20s\n",
+                       i + 1,
+                       g_server.clients[i].username,
+                       ip_str,
+                       ntohs(g_server.clients[i].address.sin_port),
+                       format_timestamp(g_server.clients[i].last_activity));
+            }
+        }
+    }
+    printf("===============================\n");
+}
+
+/**
+ * 显示服务器配置
+ */
+void show_server_config() {
+    printf("\n========== 服务器配置信息 ==========\n");
+    printf("默认端口: %d\n", DEFAULT_PORT);
+    printf("最大客户端数: %d\n", MAX_CLIENTS);
+    printf("最大消息长度: %d\n", MAX_MESSAGE_SIZE);
+    printf("最大用户名长度: %d\n", MAX_USERNAME_SIZE);
+    printf("缓冲区大小: %d\n", BUFFER_SIZE);
+    printf("Select超时时间: %d 秒\n", SELECT_TIMEOUT_SEC);
+    
+    if (g_server.socket_fd > 0) {
+        printf("当前监听端口: %d\n", ntohs(g_server.server_addr.sin_port));
+        printf("Socket文件描述符: %d\n", g_server.socket_fd);
+        printf("服务器状态: %s\n", g_server.is_running ? "运行中" : "已停止");
+        printf("启动时间: %s\n", format_timestamp(g_server.start_time));
+        printf("运行时长: %ld 秒\n", time(NULL) - g_server.start_time);
+    }
+    printf("================================\n");
+}
+
+/**
+ * 显示帮助信息
+ */
+void show_help() {
+    printf("\n========== UDP聊天服务器帮助 ==========\n");
+    printf("功能说明:\n");
+    printf("1. 启动服务器 - 在指定端口启动UDP聊天服务器\n");
+    printf("2. 停止服务器 - 安全关闭正在运行的服务器\n");
+    printf("3. 显示在线用户 - 查看当前连接的所有用户信息\n");
+    printf("4. 显示统计信息 - 查看服务器运行统计数据\n");
+    printf("5. 服务器配置 - 查看服务器配置参数\n");
+    printf("6. 帮助信息 - 显示此帮助菜单\n");
+    printf("0. 退出程序 - 关闭服务器并退出程序\n");
+    printf("\n操作说明:\n");
+    printf("- 服务器启动后将在后台运行，处理客户端连接\n");
+    printf("- 可以随时查看在线用户和统计信息\n");
+    printf("- 使用 Ctrl+C 可以优雅关闭服务器\n");
+    printf("- 服务器支持最多 %d 个并发客户端\n", MAX_CLIENTS);
+    printf("===================================\n");
+}
+
+/**
+ * 启动服务器
+ * @param port 监听端口
+ * @return 成功返回0，失败返回-1
+ */
+int start_server(int port) {
+    if (g_server.is_running) {
+        printf("服务器已经在运行中！\n");
+        return -1;
+    }
+    
+    printf("正在初始化UDP聊天服务器...\n");
+    
+    if (server_init(&g_server, port) != 0) {
+        printf("服务器初始化失败！\n");
+        return -1;
+    }
+    
+    printf("UDP聊天服务器启动成功，监听端口: %d\n", port);
+    printf("等待客户端连接...\n");
+    printf("(使用 Ctrl+C 或选择菜单选项2停止服务器)\n");
+    
+    // 重置统计信息
+    memset(&g_stats, 0, sizeof(g_stats));
+    g_stats.session_start = time(NULL);
+    
+    // 在后台线程中运行服务器（简化实现，这里直接运行）
+    g_running = true;
+    
+    return 0;
+}
+
+/**
+ * 停止服务器
+ */
+void stop_server() {
+    if (!g_server.is_running) {
+        printf("服务器没有在运行！\n");
+        return;
+    }
+    
+    printf("正在停止服务器...\n");
+    
+    // 通知所有客户端服务器关闭
+    chat_message_t shutdown_msg = {0};
+    shutdown_msg.type = MSG_SERVER_INFO;
+    strcpy(shutdown_msg.username, "系统");
+    strcpy(shutdown_msg.content, "服务器即将关闭，感谢使用！");
+    shutdown_msg.timestamp = time(NULL);
+    shutdown_msg.checksum = calculate_checksum(&shutdown_msg);
+    
+    server_broadcast_message(&g_server, &shutdown_msg, NULL);
+    
+    // 清理服务器资源
+    server_cleanup(&g_server);
+    g_running = false;
+    
+    printf("服务器已安全关闭\n");
+}
+
+/**
+ * 服务器主循环运行函数
+ */
+void run_server_loop() {
+    char buffer[BUFFER_SIZE];
+    struct sockaddr_in client_addr;
+    socklen_t addr_len = sizeof(client_addr);
+    fd_set read_fds;
+    struct timeval timeout;
+    
+    while (g_running && g_server.is_running) {
+        // 设置select参数
+        FD_ZERO(&read_fds);
+        FD_SET(g_server.socket_fd, &read_fds);
+        FD_SET(STDIN_FILENO, &read_fds);  // 监听键盘输入
+        
+        timeout.tv_sec = SELECT_TIMEOUT_SEC;
+        timeout.tv_usec = 0;
+        
+        int max_fd = (g_server.socket_fd > STDIN_FILENO) ? g_server.socket_fd : STDIN_FILENO;
+        int result = select(max_fd + 1, &read_fds, NULL, NULL, &timeout);
+        
+        if (result == -1) {
+            if (errno != EINTR) {
+                printf("Select错误: %s\n", strerror(errno));
+                break;
+            }
+            continue;
+        }
+        
+        if (result == 0) {
+            // 超时，继续循环
+            continue;
+        }
+        
+        // 检查是否有网络数据
+        if (FD_ISSET(g_server.socket_fd, &read_fds)) {
+            ssize_t bytes_received = safe_recvfrom(g_server.socket_fd, buffer, 
+                                                  BUFFER_SIZE - 1, &client_addr, &addr_len);
+            
+            if (bytes_received > 0) {
+                buffer[bytes_received] = '\0';
+                g_stats.messages_received++;
+                g_stats.bytes_received += bytes_received;
+                
+                // 处理接收到的消息
+                server_handle_message(&g_server, buffer, &client_addr, addr_len);
+            }
+        }
+        
+        // 检查是否有键盘输入（用于交互式控制）
+        if (FD_ISSET(STDIN_FILENO, &read_fds)) {
+            // 简单处理：读取输入但不做特殊处理
+            char input[256];
+            if (fgets(input, sizeof(input), stdin)) {
+                // 可以在这里添加服务器命令处理
+                if (strncmp(input, "quit", 4) == 0) {
+                    g_running = false;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 交互式服务器管理界面
+ */
+void interactive_server_management() {
+    int choice;
+    int port = DEFAULT_PORT;
+    char input[256];
+    
+    printf("欢迎使用UDP聊天服务器！\n");
+    
+    while (g_running) {
+        show_server_menu();
+        
+        if (fgets(input, sizeof(input), stdin) == NULL) {
+            break;
+        }
+        
+        choice = atoi(input);
+        
+        switch (choice) {
+            case 1:
+                // 启动服务器
+                printf("请输入监听端口 (默认 %d): ", DEFAULT_PORT);
+                if (fgets(input, sizeof(input), stdin)) {
+                    int input_port = atoi(input);
+                    if (input_port > 0 && input_port <= 65535) {
+                        port = input_port;
+                    }
+                }
+                
+                if (start_server(port) == 0) {
+                    printf("按Enter键返回主菜单，或输入'quit'停止服务器\n");
+                    run_server_loop();
+                }
+                break;
+                
+            case 2:
+                // 停止服务器
+                stop_server();
+                break;
+                
+            case 3:
+                // 显示在线用户
+                show_online_users();
+                break;
+                
+            case 4:
+                // 显示统计信息
+                print_server_stats(&g_server, &g_stats);
+                break;
+                
+            case 5:
+                // 服务器配置
+                show_server_config();
+                break;
+                
+            case 6:
+                // 帮助信息
+                show_help();
+                break;
+                
+            case 0:
+                // 退出程序
+                if (g_server.is_running) {
+                    stop_server();
+                }
+                g_running = false;
+                printf("感谢使用UDP聊天服务器，再见！\n");
+                break;
+                
+            default:
+                printf("无效的选择，请重新输入！\n");
+                break;
+        }
+        
+        if (choice != 0 && choice != 1) {
+            printf("\n按Enter键继续...");
+            getchar();
+        }
+    }
+}
+
+/**
+ * 主函数
+ */
+int main(int argc, char* argv[]) {
+    printf("UDP聊天服务器 - 计算机网络实验项目\n");
+    printf("=====================================\n");
+    
+    // 设置信号处理
+    signal(SIGINT, signal_handler);
+    signal(SIGTERM, signal_handler);
+    
+    // 初始化服务器状态
+    memset(&g_server, 0, sizeof(server_state_t));
+    
+    // 检查命令行参数
+    if (argc > 1) {
+        if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
+            printf("使用方法: %s [端口号]\n", argv[0]);
+            printf("端口号: 服务器监听端口 (默认: %d)\n", DEFAULT_PORT);
+            printf("示例: %s 9999\n", argv[0]);
+            return 0;
+        }
+        
+        // 直接启动模式
+        int port = atoi(argv[1]);
+        if (port <= 0 || port > 65535) {
+            printf("错误: 无效的端口号 %d\n", port);
+            return 1;
+        }
+        
+        if (start_server(port) != 0) {
+            return 1;
+        }
+        
+        printf("服务器运行中... (按Ctrl+C退出)\n");
+        run_server_loop();
+        stop_server();
+    } else {
+        // 交互式模式
+        interactive_server_management();
+    }
+    
+    return 0;
+}

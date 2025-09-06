@@ -20,6 +20,7 @@ network_exp_project-c/
 │   │   │   └── interface.c           # 交互界面实现
 │   │   └── test/                     # 测试用例
 │   │       └── test_sliding_window.c # 测试程序
+<<<<<<< HEAD
 │   ├── crc_algorithm/                # CRC校验算法实验
 │   │   ├── core/                     # 核心实现代码
 │   │   │   ├── crc_algorithm.h       # CRC算法头文件
@@ -36,6 +37,8 @@ network_exp_project-c/
 │   │   │   └── interface.c           # 聊天界面实现
 │   │   └── test/                     # 测试用例
 │   │       └── test_tcp_chat.c       # 完整测试套件
+=======
+>>>>>>> feature_p5
 │   └── udp_chat_system/              # UDP聊天系统实验
 │       ├── core/                     # 核心实现代码
 │       │   ├── udp_chat.h            # 系统头文件
@@ -46,6 +49,7 @@ network_exp_project-c/
 │           └── test_udp_chat.c       # 测试程序
 ├── build/                            # 编译输出目录（按实验分离）
 │   ├── sliding_window_protocol/      # 滑动窗口协议编译文件
+<<<<<<< HEAD
 │   ├── crc_algorithm/                # CRC算法编译文件
 │   ├── tcp_chat_system/              # TCP聊天系统编译文件
 │   └── udp_chat_system/              # UDP聊天系统编译文件
@@ -53,6 +57,11 @@ network_exp_project-c/
 │   ├── sliding_window_protocol/      # 滑动窗口协议可执行文件
 │   ├── crc_algorithm/                # CRC算法可执行文件
 │   ├── tcp_chat_system/              # TCP聊天系统可执行文件
+=======
+│   └── udp_chat_system/              # UDP聊天系统编译文件
+├── bin/                              # 可执行文件目录（按实验分离）
+│   ├── sliding_window_protocol/      # 滑动窗口协议可执行文件
+>>>>>>> feature_p5
 │   └── udp_chat_system/              # UDP聊天系统可执行文件
 ├── Makefile                          # 构建配置文件
 ├── CLAUDE.md                         # AI开发助手配置
@@ -79,6 +88,7 @@ network_exp_project-c/
 - `frontend/interface.c` - 用户交互界面
 - `test/test_sliding_window.c` - 完整测试套件
 
+<<<<<<< HEAD
 ### 2. CRC校验算法 - crc_algorithm
 
 **位置**: `src/crc_algorithm/`
@@ -117,6 +127,9 @@ network_exp_project-c/
 - `test/test_tcp_chat.c` - 完整的测试套件（包含10+项测试）
 
 ### 4. UDP聊天系统 - udp_chat_system
+=======
+### 2. UDP聊天系统 - udp_chat_system
+>>>>>>> feature_p5
 
 **位置**: `src/udp_chat_system/`
 
@@ -155,20 +168,28 @@ make test               # 运行所有实验的测试
 # 特定实验命令
 make sliding_window_protocol-demo   # 运行滑动窗口协议演示
 make sliding_window_protocol-test   # 运行滑动窗口协议测试
+<<<<<<< HEAD
 make crc_algorithm-demo             # 运行CRC算法演示
 make crc_algorithm-test             # 运行CRC算法测试
 make tcp_chat_system-demo           # 运行TCP聊天系统演示
 make tcp_chat_system-test           # 运行TCP聊天系统测试
+=======
+>>>>>>> feature_p5
 make udp_chat_system-demo           # 运行UDP聊天系统演示
 make udp_chat_system-test           # 运行UDP聊天系统测试
 
 # 直接运行
+<<<<<<< HEAD
 ./bin/sliding_window_protocol/demo  # 直接运行滑动窗口协议演示
 ./bin/sliding_window_protocol/test  # 直接运行滑动窗口协议测试
 ./bin/crc_algorithm/demo            # 直接运行CRC算法演示
 ./bin/crc_algorithm/test            # 直接运行CRC算法测试
 ./bin/tcp_chat_system/demo          # 直接运行TCP聊天系统演示程序
 ./bin/tcp_chat_system/test          # 直接运行TCP聊天系统测试程序
+=======
+./bin/sliding_window_protocol/demo  # 直接运行演示程序
+./bin/sliding_window_protocol/test  # 直接运行测试程序
+>>>>>>> feature_p5
 ./bin/udp_chat_system/demo          # 直接运行UDP聊天系统
 ./bin/udp_chat_system/test          # 直接运行UDP聊天系统测试
 ```
@@ -228,6 +249,7 @@ make [实验名]-clean     # 清理特定实验编译文件
 - 实现可配置的网络环境参数
 - 提供详细的统计信息和性能分析
 
+<<<<<<< HEAD
 ### CRC校验算法实现要点
 - 支持多种标准CRC算法（CRC-8、CRC-16、CRC-16-CCITT、CRC-32）
 - 实现位级算法和查表算法两种方式
@@ -245,6 +267,8 @@ make [实验名]-clean     # 清理特定实验编译文件
 - 完整的测试覆盖（基础功能、边界条件、性能测试）
 - 教学导向的中文注释和清晰代码结构
 
+=======
+>>>>>>> feature_p5
 ### UDP聊天系统实现要点
 - 基于UDP socket实现C/S架构通信
 - 使用select()实现非阻塞I/O和多客户端管理
