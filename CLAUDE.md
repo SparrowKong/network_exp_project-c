@@ -12,18 +12,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```
 network_exp_project-c/
 ├── src/                              # 源代码目录
-│   └── sliding_window_protocol/      # 滑动窗口协议实验
+│   ├── sliding_window_protocol/      # 滑动窗口协议实验
+│   │   ├── core/                     # 核心实现代码
+│   │   │   ├── sliding_window.h      # 协议头文件
+│   │   │   └── sliding_window.c      # 协议实现
+│   │   ├── frontend/                 # 用户交互界面
+│   │   │   └── interface.c           # 交互界面实现
+│   │   └── test/                     # 测试用例
+│   │       └── test_sliding_window.c # 测试程序
+│   └── crc_algorithm/                # CRC校验算法实验
 │       ├── core/                     # 核心实现代码
-│       │   ├── sliding_window.h      # 协议头文件
-│       │   └── sliding_window.c      # 协议实现
+│       │   ├── crc_algorithm.h       # CRC算法头文件
+│       │   └── crc_algorithm.c       # CRC算法实现
 │       ├── frontend/                 # 用户交互界面
 │       │   └── interface.c           # 交互界面实现
 │       └── test/                     # 测试用例
-│           └── test_sliding_window.c # 测试程序
+│           └── test_crc_algorithm.c  # 测试程序
 ├── build/                            # 编译输出目录（按实验分离）
-│   └── sliding_window_protocol/      # 滑动窗口协议编译文件
+│   ├── sliding_window_protocol/      # 滑动窗口协议编译文件
+│   └── crc_algorithm/                # CRC算法编译文件
 ├── bin/                              # 可执行文件目录（按实验分离）
-│   └── sliding_window_protocol/      # 滑动窗口协议可执行文件
+│   ├── sliding_window_protocol/      # 滑动窗口协议可执行文件
+│   └── crc_algorithm/                # CRC算法可执行文件
 ├── Makefile                          # 构建配置文件
 ├── CLAUDE.md                         # AI开发助手配置
 ├── README.md                         # 项目说明文档
@@ -49,6 +59,24 @@ network_exp_project-c/
 - `frontend/interface.c` - 用户交互界面
 - `test/test_sliding_window.c` - 完整测试套件
 
+### 2. CRC校验算法 - crc_algorithm
+
+**位置**: `src/crc_algorithm/`
+
+**功能**: 实现多种标准CRC校验算法，包含：
+- 多种CRC标准（CRC-8、CRC-16、CRC-16-CCITT、CRC-32）
+- 位级算法和查表算法两种实现方式
+- 详细的教学演示和步骤展示
+- 错误检测能力验证和模拟
+- 算法性能对比分析
+- 批量测试和标准测试向量验证
+
+**核心文件**:
+- `core/crc_algorithm.h` - CRC算法数据结构和函数声明
+- `core/crc_algorithm.c` - CRC算法核心实现（位级+查表）
+- `frontend/interface.c` - 完整交互菜单系统
+- `test/test_crc_algorithm.c` - 14个测试用例的完整测试套件
+
 ## Commands
 
 ### 构建项目
@@ -69,10 +97,14 @@ make test               # 运行所有实验的测试
 # 特定实验命令
 make sliding_window_protocol-demo   # 运行滑动窗口协议演示
 make sliding_window_protocol-test   # 运行滑动窗口协议测试
+make crc_algorithm-demo             # 运行CRC算法演示
+make crc_algorithm-test             # 运行CRC算法测试
 
 # 直接运行
-./bin/sliding_window_protocol/demo  # 直接运行演示程序
-./bin/sliding_window_protocol/test  # 直接运行测试程序
+./bin/sliding_window_protocol/demo  # 直接运行滑动窗口协议演示
+./bin/sliding_window_protocol/test  # 直接运行滑动窗口协议测试
+./bin/crc_algorithm/demo            # 直接运行CRC算法演示
+./bin/crc_algorithm/test            # 直接运行CRC算法测试
 ```
 
 ### 开发工具
