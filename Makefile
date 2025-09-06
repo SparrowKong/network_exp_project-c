@@ -47,31 +47,37 @@ $(1): directories
 	# 编译核心模块
 	@if ls $(SRC_DIR)/$(1)/core/*.c >/dev/null 2>&1; then \
 		echo "  编译 $(1) 核心模块..."; \
-		$(CC) $(CFLAGS) -c $(SRC_DIR)/$(1)/core/*.c -o $(BUILD_DIR)/$(1)/core.o; \
+		for file in $(SRC_DIR)/$(1)/core/*.c; do \
+			$(CC) $(CFLAGS) -c "$$$$file" -o $(BUILD_DIR)/$(1)/core_$$$$(basename "$$$$file" .c).o; \
+		done; \
 	fi
 	
 	# 编译前端模块
 	@if ls $(SRC_DIR)/$(1)/frontend/*.c >/dev/null 2>&1; then \
 		echo "  编译 $(1) 前端模块..."; \
-		$(CC) $(CFLAGS) -c $(SRC_DIR)/$(1)/frontend/*.c -o $(BUILD_DIR)/$(1)/frontend.o; \
+		for file in $(SRC_DIR)/$(1)/frontend/*.c; do \
+			$(CC) $(CFLAGS) -c "$$$$file" -o $(BUILD_DIR)/$(1)/frontend_$$$$(basename "$$$$file" .c).o; \
+		done; \
 	fi
 	
 	# 编译测试模块
 	@if ls $(SRC_DIR)/$(1)/test/*.c >/dev/null 2>&1; then \
 		echo "  编译 $(1) 测试模块..."; \
-		$(CC) $(CFLAGS) -c $(SRC_DIR)/$(1)/test/*.c -o $(BUILD_DIR)/$(1)/test.o; \
+		for file in $(SRC_DIR)/$(1)/test/*.c; do \
+			$(CC) $(CFLAGS) -c "$$$$file" -o $(BUILD_DIR)/$(1)/test_$$$$(basename "$$$$file" .c).o; \
+		done; \
 	fi
 	
 	# 链接演示程序
-	@if [ -f "$(BUILD_DIR)/$(1)/core.o" ] && [ -f "$(BUILD_DIR)/$(1)/frontend.o" ]; then \
+	@if ls $(BUILD_DIR)/$(1)/core_*.o $(BUILD_DIR)/$(1)/frontend_*.o >/dev/null 2>&1; then \
 		echo "  链接 $(1) 演示程序..."; \
-		$(CC) $(BUILD_DIR)/$(1)/core.o $(BUILD_DIR)/$(1)/frontend.o $(LDFLAGS) -o $(BIN_DIR)/$(1)/demo; \
+		$(CC) $(BUILD_DIR)/$(1)/core_*.o $(BUILD_DIR)/$(1)/frontend_*.o $(LDFLAGS) -lpthread -o $(BIN_DIR)/$(1)/demo; \
 	fi
 	
 	# 链接测试程序
-	@if [ -f "$(BUILD_DIR)/$(1)/core.o" ] && [ -f "$(BUILD_DIR)/$(1)/test.o" ]; then \
+	@if ls $(BUILD_DIR)/$(1)/core_*.o $(BUILD_DIR)/$(1)/test_*.o >/dev/null 2>&1; then \
 		echo "  链接 $(1) 测试程序..."; \
-		$(CC) $(BUILD_DIR)/$(1)/core.o $(BUILD_DIR)/$(1)/test.o $(LDFLAGS) -o $(BIN_DIR)/$(1)/test; \
+		$(CC) $(BUILD_DIR)/$(1)/core_*.o $(BUILD_DIR)/$(1)/test_*.o $(LDFLAGS) -o $(BIN_DIR)/$(1)/test; \
 	fi
 	
 	@echo "  $(1) 构建完成"

@@ -20,20 +20,40 @@ network_exp_project-c/
 │   │   │   └── interface.c           # 交互界面实现
 │   │   └── test/                     # 测试用例
 │   │       └── test_sliding_window.c # 测试程序
-│   └── crc_algorithm/                # CRC校验算法实验
+│   ├── crc_algorithm/                # CRC校验算法实验
+│   │   ├── core/                     # 核心实现代码
+│   │   │   ├── crc_algorithm.h       # CRC算法头文件
+│   │   │   └── crc_algorithm.c       # CRC算法实现
+│   │   ├── frontend/                 # 用户交互界面
+│   │   │   └── interface.c           # 交互界面实现
+│   │   └── test/                     # 测试用例
+│   │       └── test_crc_algorithm.c  # 测试程序
+│   ├── tcp_chat_system/              # TCP聊天系统实验
+│   │   ├── core/                     # 核心实现代码
+│   │   │   ├── tcp_chat.h            # TCP聊天协议头文件
+│   │   │   └── tcp_chat.c            # TCP通信核心实现
+│   │   ├── frontend/                 # 用户交互界面
+│   │   │   └── interface.c           # 聊天界面实现
+│   │   └── test/                     # 测试用例
+│   │       └── test_tcp_chat.c       # 完整测试套件
+│   └── udp_chat_system/              # UDP聊天系统实验
 │       ├── core/                     # 核心实现代码
-│       │   ├── crc_algorithm.h       # CRC算法头文件
-│       │   └── crc_algorithm.c       # CRC算法实现
+│       │   ├── udp_chat.h            # 系统头文件
+│       │   └── udp_chat.c            # 系统实现
 │       ├── frontend/                 # 用户交互界面
 │       │   └── interface.c           # 交互界面实现
 │       └── test/                     # 测试用例
-│           └── test_crc_algorithm.c  # 测试程序
+│           └── test_udp_chat.c       # 测试程序
 ├── build/                            # 编译输出目录（按实验分离）
 │   ├── sliding_window_protocol/      # 滑动窗口协议编译文件
-│   └── crc_algorithm/                # CRC算法编译文件
+│   ├── crc_algorithm/                # CRC算法编译文件
+│   ├── tcp_chat_system/              # TCP聊天系统编译文件
+│   └── udp_chat_system/              # UDP聊天系统编译文件
 ├── bin/                              # 可执行文件目录（按实验分离）
 │   ├── sliding_window_protocol/      # 滑动窗口协议可执行文件
-│   └── crc_algorithm/                # CRC算法可执行文件
+│   ├── crc_algorithm/                # CRC算法可执行文件
+│   ├── tcp_chat_system/              # TCP聊天系统可执行文件
+│   └── udp_chat_system/              # UDP聊天系统可执行文件
 ├── Makefile                          # 构建配置文件
 ├── CLAUDE.md                         # AI开发助手配置
 ├── README.md                         # 项目说明文档
@@ -77,6 +97,44 @@ network_exp_project-c/
 - `frontend/interface.c` - 完整交互菜单系统
 - `test/test_crc_algorithm.c` - 14个测试用例的完整测试套件
 
+### 3. TCP聊天系统 - tcp_chat_system
+
+**位置**: `src/tcp_chat_system/`
+
+**功能**: 基于TCP Socket原语实现C/S架构的聊天系统，包含：
+- 完整的TCP服务端和客户端实现
+- 多客户端并发连接支持（使用select多路复用）
+- 用户登录、聊天、退出功能
+- 实时消息广播和用户列表管理
+- 网络异常处理和连接状态监控
+- 详细的统计信息和性能分析
+- 完整的错误处理和边界条件测试
+
+**核心文件**:
+- `core/tcp_chat.h` - TCP通信协议数据结构和函数声明
+- `core/tcp_chat.c` - TCP Socket通信核心实现
+- `frontend/interface.c` - 客户端和服务端交互界面
+- `test/test_tcp_chat.c` - 完整的测试套件（包含10+项测试）
+
+### 4. UDP聊天系统 - udp_chat_system
+
+**位置**: `src/udp_chat_system/`
+
+**功能**: 基于UDP协议的C/S架构聊天系统，包含：
+- 完整的UDP socket通信实现
+- 支持多客户端同时连接（最多10个）
+- 消息广播和群聊功能
+- 消息完整性校验（校验和机制）
+- 用户管理和在线状态跟踪
+- 详细的统计信息和日志记录
+- 交互式服务器和客户端界面
+
+**核心文件**:
+- `core/udp_chat.h` - 系统数据结构和函数声明
+- `core/udp_chat.c` - UDP通信和聊天功能实现
+- `frontend/interface.c` - 统一用户交互界面
+- `test/test_udp_chat.c` - 完整测试套件（42个测试用例）
+
 ## Commands
 
 ### 构建项目
@@ -99,12 +157,20 @@ make sliding_window_protocol-demo   # 运行滑动窗口协议演示
 make sliding_window_protocol-test   # 运行滑动窗口协议测试
 make crc_algorithm-demo             # 运行CRC算法演示
 make crc_algorithm-test             # 运行CRC算法测试
+make tcp_chat_system-demo           # 运行TCP聊天系统演示
+make tcp_chat_system-test           # 运行TCP聊天系统测试
+make udp_chat_system-demo           # 运行UDP聊天系统演示
+make udp_chat_system-test           # 运行UDP聊天系统测试
 
 # 直接运行
 ./bin/sliding_window_protocol/demo  # 直接运行滑动窗口协议演示
 ./bin/sliding_window_protocol/test  # 直接运行滑动窗口协议测试
 ./bin/crc_algorithm/demo            # 直接运行CRC算法演示
 ./bin/crc_algorithm/test            # 直接运行CRC算法测试
+./bin/tcp_chat_system/demo          # 直接运行TCP聊天系统演示程序
+./bin/tcp_chat_system/test          # 直接运行TCP聊天系统测试程序
+./bin/udp_chat_system/demo          # 直接运行UDP聊天系统
+./bin/udp_chat_system/test          # 直接运行UDP聊天系统测试
 ```
 
 ### 开发工具
@@ -162,11 +228,39 @@ make [实验名]-clean     # 清理特定实验编译文件
 - 实现可配置的网络环境参数
 - 提供详细的统计信息和性能分析
 
+### CRC校验算法实现要点
+- 支持多种标准CRC算法（CRC-8、CRC-16、CRC-16-CCITT、CRC-32）
+- 实现位级算法和查表算法两种方式
+- 提供详细的计算步骤演示和教学功能
+- 包含错误检测能力验证和性能对比分析
+- 支持批量测试和标准测试向量验证
+
+### TCP聊天系统实现要点
+- 基于标准TCP Socket API实现C/S架构
+- 服务端使用select多路复用支持多客户端并发
+- 实现完整的消息协议（登录、聊天、系统消息等）
+- 客户端和服务端独立的状态管理
+- 支持用户认证、消息广播、在线用户管理
+- 网络异常处理和优雅断开连接
+- 完整的测试覆盖（基础功能、边界条件、性能测试）
+- 教学导向的中文注释和清晰代码结构
+
+### UDP聊天系统实现要点
+- 基于UDP socket实现C/S架构通信
+- 使用select()实现非阻塞I/O和多客户端管理
+- 自定义消息协议支持多种消息类型（加入、离开、聊天、服务器信息等）
+- 消息完整性校验确保数据传输可靠性
+- 服务器端维护客户端列表实现消息广播
+- 客户端和服务器分离的交互式界面设计
+- 完整的错误处理和异常情况处理机制
+
 ### 扩展建议
 - 可以基于现有框架添加更多协议实验
 - 支持更复杂的网络协议（如选择重传、流量控制）
 - 添加图形化界面或Web界面
 - 集成网络协议分析工具
+- 实现更复杂的聊天功能（私聊、群组、文件传输）
+- 添加数据库支持和用户管理系统
 
 ## User Requirements and Preferences
 
